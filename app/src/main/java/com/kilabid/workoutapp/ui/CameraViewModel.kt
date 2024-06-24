@@ -1,51 +1,52 @@
-package com.kilabid.workoutapp.ui
+package com.kilabid.workoutapp
 
 import android.content.Context
-import androidx.camera.core.*
+import android.util.Log
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
-class CameraViewModel: ViewModel() {
-    private var cameraProvider: ProcessCameraProvider? = null
-    private var preview: Preview? = null
-    private var imageAnalyzer: ImageAnalysis? = null
-    private var camera: Camera? = null
-    private val backgroundExecutor: ExecutorService = Executors.newSingleThreadExecutor()
+class CameraViewModel : ViewModel() {
 
-    fun setUpCamera(context: Context, lifecycleOwner: LifecycleOwner, cameraFacing: Int, onImageCaptured: (ImageProxy) -> Unit) {
+    private lateinit var cameraExecutor: ExecutorService
+
+    fun startCamera(context: Context, lifecycleOwner: LifecycleOwner, previewView: PreviewView) {
+        cameraExecutor = Executors.newSingleThreadExecutor()
+
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+
         cameraProviderFuture.addListener({
-            cameraProvider = cameraProviderFuture.get()
-            bindCameraUseCases(context, lifecycleOwner, cameraFacing, onImageCaptured)
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
+            val preview = Preview.Builder().build().also {
+                it.setSurfaceProvider(previewView.surfaceProvider)
+            }
+
+            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+
+            try {
+                cameraProvider.unbindAll()
+                cameraProvider.bindToLifecycle(
+                    lifecycleOwner, cameraSelector, preview
+                )
+            } catch (exc: Exception) {
+                Log.e(TAG, "Use case binding failed", exc)
+            }
+
         }, ContextCompat.getMainExecutor(context))
     }
 
-    private fun bindCameraUseCases(context: Context, lifecycleOwner: LifecycleOwner, cameraFacing: Int, onImageCaptured: (ImageProxy) -> Unit) {
-        val cameraProvider = cameraProvider ?: throw IllegalStateException("Camera initialization failed.")
-        val cameraSelector = CameraSelector.Builder().requireLensFacing(cameraFacing).build()
-
-        preview = Preview.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3).build()
-
-        imageAnalyzer = ImageAnalysis.Builder()
-            .setTargetAspectRatio(AspectRatio.RATIO_4_3)
-            .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-            .setOutputImageFormat(ImageAnalysis.OUTPUT_IMAGE_FORMAT_RGBA_8888)
-            .build()
-            .also {
-                it.setAnalyzer(backgroundExecutor, onImageCaptured)
-            }
-
-        cameraProvider.unbindAll()
-        camera = cameraProvider.bindToLifecycle(
-            lifecycleOwner, cameraSelector, preview, imageAnalyzer
-        )
+    override fun onCleared() {
+        super.onCleared()
+        cameraExecutor.shutdown()
     }
 
-    fun startCameraPreview(surfaceProvider: Preview.SurfaceProvider) {
-        preview?.setSurfaceProvider(surfaceProvider)
+    companion object {
+        private const val TAG = "CameraViewModel"
     }
 }

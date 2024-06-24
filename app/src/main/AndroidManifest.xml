@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature android:name="android.hardware.camera" />
-
-    <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
-
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32"
         tools:ignore="ScopedStorage" />
 
@@ -22,6 +24,21 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WorkoutApp"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.PushUpPage.PoseEstimationActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.RegisterPage.RegisterPageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.LoginPage.LoginPageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.LandingPage.LandingPageActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SplashScreen.SplashScreenActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.MainPage.MainActivity"
             android:exported="true">
