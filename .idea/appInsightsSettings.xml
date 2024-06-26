@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.kilabid.workoutapp" />
+                  <option name="mobileSdkAppId" value="1:277677042033:android:d86667e9e4b31b10402ed0" />
+                  <option name="projectId" value="penulisan-ilmiah-d7de2" />
+                  <option name="projectNumber" value="277677042033" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

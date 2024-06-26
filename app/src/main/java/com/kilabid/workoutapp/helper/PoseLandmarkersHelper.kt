@@ -1,4 +1,4 @@
-package com.kilabid.workoutapp.helper
+package  com.kilabid.workoutapp.helper
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -29,11 +29,6 @@ class PoseLandmarkersHelper(
 
     init {
         setupPoseLandmarker()
-    }
-
-    fun clearPoseLandmarker() {
-        poseLandmarker?.close()
-        poseLandmarker = null
     }
 
     private fun setupPoseLandmarker() {
@@ -137,6 +132,10 @@ class PoseLandmarkersHelper(
         poseLandmarkerHelperListener?.onError(error.message ?: "An unknown error has occurred")
     }
 
+    fun close() {
+        poseLandmarker?.close()
+        poseLandmarker = null
+    }
     companion object {
         const val TAG = "PoseLandmarkerHelper"
         const val DELEGATE_CPU = 0
