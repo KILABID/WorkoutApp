@@ -1,11 +1,18 @@
 package com.kilabid.workoutapp.helper
 
+import android.os.SystemClock
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.lang.Math.toDegrees
-import kotlin.math.atan2
+import com.kilabid.workoutapp.util.calculateAngle
 
 class PushUpPoseDetector {
-    fun detectPushUpPosition(landmarks: MutableList<NormalizedLandmark>): PoseLandmarkersHelper.ExercisePosition {
+    private var counter = 0
+    private var previousPosition: PoseLandmarkersHelper.PushUpPosition = PoseLandmarkersHelper.PushUpPosition.NONE
+    private var lastDetectionTime: Long = 0
+    private val debounceDuration: Long = 500 // 500 ms atau 0.5 detik
+
+    fun detectPushUpPosition(landmarks: MutableList<NormalizedLandmark>): PoseLandmarkersHelper.PushUpPosition {
+        val currentTime = SystemClock.uptimeMillis()
+
         val leftHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_HIP]
         val rightHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_HIP]
         val leftShoulder = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_SHOULDER]
@@ -22,32 +29,34 @@ class PushUpPoseDetector {
         val leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist)
         val rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist)
 
-        val isPushUpUp = (leftHipAngle > 170 && rightHipAngle > 170) &&
+        val isUp = (leftHipAngle > 170 && rightHipAngle > 170) &&
                 (leftElbowAngle > 150 && rightElbowAngle > 150)
 
-        val isPushUpDown = (leftHipAngle > 170 && rightHipAngle > 170) &&
+        val isDown = (leftHipAngle > 170 && rightHipAngle > 170) &&
                 (leftElbowAngle < 70 && rightElbowAngle < 70)
 
-        return when {
-            isPushUpUp -> PoseLandmarkersHelper.ExercisePosition.PUSH_UP_UP
-            isPushUpDown -> PoseLandmarkersHelper.ExercisePosition.PUSH_UP_DOWN
-            else -> PoseLandmarkersHelper.ExercisePosition.NONE
+        val currentPosition = when {
+            isUp -> PoseLandmarkersHelper.PushUpPosition.PUSH_UP_UP
+            isDown -> PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN
+            else -> PoseLandmarkersHelper.PushUpPosition.NONE
         }
+
+        if (currentPosition != PoseLandmarkersHelper.PushUpPosition.NONE && currentTime - lastDetectionTime > debounceDuration) {
+            // Increment counter when transitioning from UP to DOWN
+            if (previousPosition == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_UP &&
+                currentPosition == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN) {
+                counter++
+            }
+            // Update the previous position
+            previousPosition = currentPosition
+            // Update the last detection time
+            lastDetectionTime = currentTime
+        }
+
+        return currentPosition
     }
 
-    private fun calculateAngle(
-        firstPoint: NormalizedLandmark,
-        midPoint: NormalizedLandmark,
-        lastPoint: NormalizedLandmark
-    ): Double {
-        val result = toDegrees(
-            atan2((lastPoint.y() - midPoint.y()).toDouble(), (lastPoint.x() - midPoint.x()).toDouble())
-                    - atan2((firstPoint.y() - midPoint.y()).toDouble(), (firstPoint.x() - midPoint.x()).toDouble())
-        )
-        var angle = Math.abs(result)
-        if (angle > 180) {
-            angle = 360.0 - angle
-        }
-        return angle
+    fun getCounter(): Int {
+        return counter
     }
 }

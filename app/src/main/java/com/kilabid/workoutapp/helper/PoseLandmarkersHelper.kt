@@ -17,7 +17,6 @@ import com.google.mediapipe.tasks.core.Delegate
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarker
 import com.google.mediapipe.tasks.vision.poselandmarker.PoseLandmarkerResult
-import kotlin.math.pow
 
 class PoseLandmarkersHelper(
     private var minPoseDetectionConfidence: Float = DEFAULT_POSE_DETECTION_CONFIDENCE,
@@ -27,6 +26,10 @@ class PoseLandmarkersHelper(
     private var runningMode: RunningMode = RunningMode.LIVE_STREAM,
     private val context: Context,
     private val poseLandmarkerHelperListener: LandmarkerListener? = null,
+
+    // Tambahkan parameter untuk jenis latihan
+    private var exerciseType: ExerciseType = ExerciseType.NONE
+
 ) {
     private val modelName = "pose_landmarker_lite.task"
     private var poseLandmarker: PoseLandmarker? = null
@@ -34,7 +37,6 @@ class PoseLandmarkersHelper(
     private val pushUpPoseDetector = PushUpPoseDetector()
     private val squatPoseDetector = SquatPoseDetector()
     private val sitUpPoseDetector = SitUpPoseDetector()
-
 
     init {
         setupPoseLandmarker()
@@ -127,40 +129,61 @@ class PoseLandmarkersHelper(
         val finishTimeMs = SystemClock.uptimeMillis()
         val inferenceTime = finishTimeMs - result.timestampMs()
         result.landmarks().forEachIndexed { _, poseLandmarks ->
-            // Detect exercise pose using joint angles
-            val exercisePosition = detectExercisePosition(poseLandmarks)
-            when (exercisePosition) {
-                ExercisePosition.PUSH_UP_UP -> {
-                    Log.d(TAG, "Push-up UP position detected")
-                    showToast("Push-up UP position detected")
+            // Deteksi pose latihan berdasarkan jenis latihan yang diaktifkan
+            when (exerciseType) {
+                ExerciseType.PUSH_UP -> {
+                    val pushUpPosition = detectPushUpPosition(poseLandmarks)
+                    pushUpPosition?.let {
+                        when (it) {
+                            PushUpPosition.PUSH_UP_UP -> {
+                                Log.d(TAG, "Push-up UP position detected")
+                                showToast("Push-up UP position detected")
+                            }
+                            PushUpPosition.PUSH_UP_DOWN -> {
+                                Log.d(TAG, "Push-up DOWN position detected")
+                                showToast("Push-up DOWN position detected")
+                            }
+                            PushUpPosition.NONE -> {
+                            }
+                        }
+                    }
                 }
-
-                ExercisePosition.PUSH_UP_DOWN -> {
-                    Log.d(TAG, "Push-up DOWN position detected")
-                    showToast("Push-up DOWN position detected")
+                ExerciseType.SQUAT -> {
+                    val squatPosition = detectSquatPosition(poseLandmarks)
+                    squatPosition?.let {
+                        when (it) {
+                            SquatPosition.SQUAT_UP -> {
+                                Log.d(TAG, "Squat UP position detected")
+                                showToast("Squat UP position detected")
+                            }
+                            SquatPosition.SQUAT_DOWN -> {
+                                Log.d(TAG, "Squat DOWN position detected")
+                                showToast("Squat DOWN position detected")
+                            }
+                            SquatPosition.NONE -> {
+                            }
+                        }
+                    }
                 }
-
-                ExercisePosition.SQUAT_UP -> {
-                    Log.d(TAG, "Squat UP position detected")
-                    showToast("Squat UP position detected")
+                ExerciseType.SIT_UP -> {
+                    val sitUpPosition = detectSitUpPosition(poseLandmarks)
+                    sitUpPosition?.let {
+                        when (it){
+                            SitUpPosition.SIT_UP_UP -> {
+                                Log.d(TAG, "Sit-up UP position detected")
+                                showToast("Sit-up UP position detected")
+                            }
+                            SitUpPosition.SIT_UP_DOWN -> {
+                                Log.d(TAG, "Sit-up DOWN position detected")
+                                showToast("Sit-up DOWN position detected")
+                            }
+                            SitUpPosition.NONE -> {}
+                        }
+                    }
                 }
-
-                ExercisePosition.SQUAT_DOWN -> {
-                    Log.d(TAG, "Squat DOWN position detected")
-                    showToast("Squat DOWN position detected")
+                ExerciseType.NONE -> {
+                    // Tidak melakukan deteksi apapun
                 }
-
-                ExercisePosition.SIT_UP_UP -> {
-                    Log.d(TAG, "Sit-up UP position detected")
-                    showToast("Sit-up UP position detected")
-                }
-
-                ExercisePosition.SIT_UP_DOWN -> {
-                    Log.d(TAG, "Sit-up DOWN position detected")
-                    showToast("Sit-up DOWN position detected")
-                }
-
-                ExercisePosition.NONE -> Log.d(TAG, "No exercise position detected")
             }
         }
         poseLandmarkerHelperListener?.onResults(
@@ -173,22 +196,30 @@ class PoseLandmarkersHelper(
         )
     }
 
-    private fun detectExercisePosition(landmarks: MutableList<NormalizedLandmark>): ExercisePosition {
+    private fun detectPushUpPosition(landmark: MutableList<NormalizedLandmark>): PushUpPosition? {
         return when {
-            // Detect push-up position using joint angles
-            pushUpPoseDetector.detectPushUpPosition(landmarks) != ExercisePosition.NONE -> {
-                pushUpPoseDetector.detectPushUpPosition(landmarks)
+            pushUpPoseDetector.detectPushUpPosition(landmark) != PushUpPosition.NONE -> {
+                pushUpPoseDetector.detectPushUpPosition(landmark)
             }
-            // Detect squat position using joint angles
-            squatPoseDetector.detectSquatPosition(landmarks) != ExercisePosition.NONE -> {
-                squatPoseDetector.detectSquatPosition(landmarks)
-            }
-            // Detect sit-up position using joint angles
-            sitUpPoseDetector.detectSitUpPosition(landmarks) != ExercisePosition.NONE -> {
-                sitUpPoseDetector.detectSitUpPosition(landmarks)
-            }
+            else -> null
+        }
+    }
 
-            else -> ExercisePosition.NONE
+    private fun detectSquatPosition(landmark: MutableList<NormalizedLandmark>): SquatPosition? {
+        return when {
+            squatPoseDetector.detectSquatPosition(landmark) != SquatPosition.NONE -> {
+                squatPoseDetector.detectSquatPosition(landmark)
+            }
+            else -> null
+        }
+    }
+
+    private fun detectSitUpPosition(landmark: MutableList<NormalizedLandmark>): SitUpPosition? {
+        return when {
+            sitUpPoseDetector.detectSitUpPosition(landmark) != SitUpPosition.NONE -> {
+                sitUpPoseDetector.detectSitUpPosition(landmark)
+            }
+            else -> null
         }
     }
 
@@ -198,15 +229,31 @@ class PoseLandmarkersHelper(
         }
     }
 
-    enum class ExercisePosition {
+    enum class PushUpPosition {
         PUSH_UP_UP,
         PUSH_UP_DOWN,
+        NONE
+    }
+
+    enum class SquatPosition {
         SQUAT_UP,
         SQUAT_DOWN,
+        NONE
+    }
+
+    enum class SitUpPosition {
         SIT_UP_UP,
         SIT_UP_DOWN,
         NONE
     }
+
+    enum class ExerciseType {
+        PUSH_UP,
+        SQUAT,
+        SIT_UP,
+        NONE
+    }
+
     private fun returnLivestreamError(error: RuntimeException) {
         poseLandmarkerHelperListener?.onError(error.message ?: "An unknown error has occurred")
     }
@@ -215,6 +262,7 @@ class PoseLandmarkersHelper(
         poseLandmarker?.close()
         poseLandmarker = null
     }
+
     companion object {
         const val TAG = "PoseLandmarkersHelper"
         const val DELEGATE_CPU = 0
@@ -239,13 +287,6 @@ class PoseLandmarkersHelper(
         const val POSE_LANDMARK_RIGHT_KNEE = 26
         const val POSE_LANDMARK_LEFT_ANKLE = 27
         const val POSE_LANDMARK_RIGHT_ANKLE = 28
-    }
-    private fun FloatArray.pow(exponent: Int): FloatArray {
-        val result = FloatArray(size)
-        for (i in indices) {
-            result[i] = this[i].pow(exponent)
-        }
-        return result
     }
 
     data class ResultBundle(
