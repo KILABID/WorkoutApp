@@ -38,7 +38,7 @@ class CameraFragment : Fragment(), PoseLandmarkersHelper.LandmarkerListener {
     private var imageAnalyzer: ImageAnalysis? = null
     private var camera: Camera? = null
     private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
+    private var cameraFacing = CameraSelector.LENS_FACING_BACK
     private lateinit var backgroundExecutor: ExecutorService
 
     override fun onCreateView(
@@ -165,6 +165,7 @@ class CameraFragment : Fragment(), PoseLandmarkersHelper.LandmarkerListener {
         super.onDestroyView()
         _binding = null
         poseLandmarkerHelper.close()
+        binding.overlay.clear()
     }
 
     override fun onError(error: String, errorCode: Int) {
