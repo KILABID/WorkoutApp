@@ -1,42 +1,48 @@
 package com.kilabid.workoutapp.helper
 
+import android.os.SystemClock
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
-import java.lang.Math.toDegrees
-import kotlin.math.atan2
+import com.kilabid.workoutapp.util.calculateAngle
 
 class SitUpPoseDetector {
-    fun detectSitUpPosition(landmarks: MutableList<NormalizedLandmark>): PoseLandmarkersHelper.ExercisePosition {
+    private var counter = 0
+    private var previousPosition: PoseLandmarkersHelper.SitUpPosition = PoseLandmarkersHelper.SitUpPosition.NONE
+    private var lastDetectionTime: Long = 0
+    private val debounceDuration: Long = 500 // 500 ms atau 0.5 detik
+    fun detectSitUpPosition(landmarks: MutableList<NormalizedLandmark>): PoseLandmarkersHelper.SitUpPosition {
         val leftShoulder = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_SHOULDER]
         val rightShoulder = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_SHOULDER]
         val leftHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_HIP]
         val rightHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_HIP]
         val leftKnee = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_KNEE]
         val rightKnee = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_KNEE]
+        val currentTime = SystemClock.uptimeMillis()
+
 
         // Calculate angles for sit-up detection
         val leftBodyAngle = calculateAngle(leftShoulder, leftHip, leftKnee)
         val rightBodyAngle = calculateAngle(rightShoulder, rightHip, rightKnee)
 
-        return when {
-            leftBodyAngle > 170 && rightBodyAngle > 170 -> PoseLandmarkersHelper.ExercisePosition.SIT_UP_UP
-            leftBodyAngle < 90 && rightBodyAngle < 90 -> PoseLandmarkersHelper.ExercisePosition.SIT_UP_DOWN
-            else -> PoseLandmarkersHelper.ExercisePosition.NONE
+        val currentPosition =  when {
+            leftBodyAngle > 150 && rightBodyAngle > 150 -> PoseLandmarkersHelper.SitUpPosition.SIT_UP_UP
+            leftBodyAngle < 90 && rightBodyAngle < 90 -> PoseLandmarkersHelper.SitUpPosition.SIT_UP_DOWN
+            else -> PoseLandmarkersHelper.SitUpPosition.NONE
         }
-    }
+        if (currentPosition != PoseLandmarkersHelper.SitUpPosition.NONE && currentTime - lastDetectionTime > debounceDuration) {
+            // Increment counter when transitioning from UP to DOWN
+            if (previousPosition == PoseLandmarkersHelper.SitUpPosition.SIT_UP_UP &&
+                currentPosition == PoseLandmarkersHelper.SitUpPosition.SIT_UP_DOWN) {
+                counter++
+            }
+            // Update the previous position
+            previousPosition = currentPosition
+            // Update the last detection time
+            lastDetectionTime = currentTime
+        }
 
-    private fun calculateAngle(
-        firstPoint: NormalizedLandmark,
-        midPoint: NormalizedLandmark,
-        lastPoint: NormalizedLandmark
-    ): Double {
-        val result = toDegrees(
-            atan2((lastPoint.y() - midPoint.y()).toDouble(), (lastPoint.x() - midPoint.x()).toDouble())
-                    - atan2((firstPoint.y() - midPoint.y()).toDouble(), (firstPoint.x() - midPoint.x()).toDouble())
-        )
-        var angle = Math.abs(result)
-        if (angle > 180) {
-            angle = 360.0 - angle
-        }
-        return angle
+        return currentPosition
+    }
+    fun getCounter(): Int {
+        return counter
     }
 }

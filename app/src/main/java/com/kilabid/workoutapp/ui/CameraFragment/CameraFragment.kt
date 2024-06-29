@@ -151,7 +151,9 @@ class CameraFragment : Fragment(), PoseLandmarkersHelper.LandmarkerListener {
     private fun initializePoseLandmarkerHelper() {
         poseLandmarkerHelper = PoseLandmarkersHelper(
             context = requireContext(),
-            poseLandmarkerHelperListener = this
+            runningMode = RunningMode.LIVE_STREAM,
+            poseLandmarkerHelperListener = this,
+            exerciseType = PoseLandmarkersHelper.ExerciseType.PUSH_UP
         )
     }
 
@@ -160,7 +162,6 @@ class CameraFragment : Fragment(), PoseLandmarkersHelper.LandmarkerListener {
             requireContext(), it
         ) == PackageManager.PERMISSION_GRANTED
     }
-
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
@@ -193,7 +194,6 @@ class CameraFragment : Fragment(), PoseLandmarkersHelper.LandmarkerListener {
             }
         }
     }
-
     companion object {
         private const val TAG = "CameraFragment"
         private const val REQUEST_CODE_PERMISSIONS = 10
