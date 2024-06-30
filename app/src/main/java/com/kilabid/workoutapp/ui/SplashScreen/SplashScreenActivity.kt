@@ -2,10 +2,16 @@ package com.kilabid.workoutapp.ui.SplashScreen
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.kilabid.workoutapp.R
+import com.kilabid.workoutapp.data.UserPreferences
+import com.kilabid.workoutapp.data.datastore
 import com.kilabid.workoutapp.ui.LandingPage.LandingPageActivity
+import com.kilabid.workoutapp.ui.MainPage.MainActivity
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -13,9 +19,17 @@ class SplashScreenActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_splash_screen)
         //Buatkan saya kode splash screen
-        Handler(mainLooper).postDelayed({
-            startActivity(Intent(this, LandingPageActivity::class.java))
+        lifecycleScope.launch {
+            delay(5000)
+            val userPreferences = UserPreferences.getInstance(datastore)
+            val user = userPreferences.getSession().first()
+            val intent = if (user.isLogin) {
+                Intent(this@SplashScreenActivity, MainActivity::class.java)
+            } else {
+                Intent(this@SplashScreenActivity, LandingPageActivity::class.java)
+            }
+            startActivity(intent)
             finish()
-        }, 2000)
+        }
     }
 }

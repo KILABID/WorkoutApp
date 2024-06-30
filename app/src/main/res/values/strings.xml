@@ -46,6 +46,12 @@
     <string name="label_num_poses">Number of Poses</string>
     <string name="label_delegate">Delegate</string>
     <string name="label_models">Model</string>
+    <string name="push_up_count">Push-up Count: %1$s</string>
+    <string name="squat_count">Squat Count: %1$s</string>
+    <string name="sit_up_detected">Sit-Up Count: %1$s</string>
+    <string name="your_journey_nto_a_healthier_nstronger_you_nstarts_here_nlet_s_get_nmoving">Your journey \nto a healthier, \nstronger you \nstarts here. \nLet\'s get \nmoving!</string>
+    <string name="hi_user">Hi, User</string>
+    <string name="hi_username">Hi, %1$s</string>
 
     <string-array name="delegate_spinner_titles">
         <item>CPU</item>

@@ -26,7 +26,13 @@
         android:theme="@style/Theme.WorkoutApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.SitUpPage.SitUpActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.PushUpPage.PushUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.SquatPage.SquatActivity"
             android:exported="false" />
         <activity
             android:name=".ui.RegisterPage.RegisterPageActivity"
@@ -38,10 +44,10 @@
             android:name=".ui.LandingPage.LandingPageActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.SplashScreen.SplashScreenActivity"
+            android:name=".ui.MainPage.MainActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.MainPage.MainActivity"
+            android:name=".ui.SplashScreen.SplashScreenActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

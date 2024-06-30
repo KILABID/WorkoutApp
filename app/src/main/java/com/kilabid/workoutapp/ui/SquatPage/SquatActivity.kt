@@ -33,7 +33,7 @@ class SquatActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerListe
     private val cameraViewModel: CameraViewModel by viewModels()
     private lateinit var counterTextView: TextView
     private lateinit var poseLandmarkersHelper: PoseLandmarkersHelper
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var backgroundExecutor: ExecutorService
     private var imageAnalyzer: ImageAnalysis? = null

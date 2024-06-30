@@ -6,30 +6,36 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.EditText
 import android.widget.Toast
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import androidx.lifecycle.lifecycleScope
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.auth.FirebaseAuth
+import com.kilabid.workoutapp.data.UserModel
 import com.kilabid.workoutapp.databinding.ActivityLoginPageBinding
 import com.kilabid.workoutapp.ui.MainPage.MainActivity
+import com.kilabid.workoutapp.ui.ViewModelFactory
+import kotlinx.coroutines.launch
 
 class LoginPageActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginPageBinding
     private lateinit var topAppBar: androidx.appcompat.widget.Toolbar
     private lateinit var etEmail: EditText
     private lateinit var etPassword: EditText
-    private lateinit var googleButton: CardView
     private lateinit var loginButton: FloatingActionButton
     private lateinit var auth: FirebaseAuth
     private lateinit var email: String
     private lateinit var password: String
+    private val viewModel by viewModels<LoginViewModel> {
+        ViewModelFactory.getInstance(this)
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        googleButton = binding.googleButton
         topAppBar = binding.topAppBar
         etEmail = binding.etEmail
         etPassword = binding.etPassword
@@ -57,6 +63,13 @@ class LoginPageActivity : AppCompatActivity() {
                                     intent.putExtra("displayName", user.displayName.toString())
                                     intent.putExtra("photoUrl", user.photoUrl.toString())
                                     intent.putExtra("idToken", idToken)
+                                    lifecycleScope.launch {
+                                        viewModel.saveSession(UserModel(
+                                            user.email.toString(),
+                                            user.displayName.toString(),
+                                            true
+                                        ))
+                                    }
                                     startActivity(intent)
                                     finish()
                                 } else {
@@ -76,9 +89,6 @@ class LoginPageActivity : AppCompatActivity() {
                 }
         }
 
-        googleButton.setOnClickListener {
-            // Handle Google sign-in
-        }
 
         topAppBar.setNavigationOnClickListener {
             // Handle navigation icon press

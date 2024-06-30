@@ -34,7 +34,7 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
     private lateinit var counterTextView: TextView
     private lateinit var binding: ActivityPushUpBinding
     private lateinit var poseLandmarkersHelper: PoseLandmarkersHelper
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraProvider: ProcessCameraProvider? = null
     private lateinit var backgroundExecutor: ExecutorService
     private var imageAnalyzer: ImageAnalysis? = null

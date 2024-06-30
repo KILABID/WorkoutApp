@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="list_menu">
+        <item>Push-Up</item>
+        <item>Sit-Up</item>
+        <item>Squat</item>
+    </string-array>
+
+    <string-array name="list_desc">
+        <item>Dada, bahu, lengan</item>
+        <item>Perut</item>
+        <item>Paha, punggung</item>
+    </string-array>
+
+    <integer-array name="list_menu_iv">
+        <item>@drawable/push_up_icon</item>
+        <item>@drawable/sit_up_icon</item>
+        <item>@drawable/squat_icon</item>
+    </integer-array>
+</resources>
