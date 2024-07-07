@@ -4,6 +4,10 @@
         <item name="colorContainer">@color/white</item>
         <item name="colorOnContainer">@color/black</item>
     </style>
+    <style name="ThemeOverlay.App.Button2" parent="ThemeOverlay.Material3.Button">
+        <item name="colorContainer">@color/black</item>
+        <item name="colorOnContainer">@color/white</item>
+    </style>
 
     <style name="ShapeAppearance.App.SmallComponent" parent="ShapeAppearance.Material3.Corner.Medium">
         <item name="cornerFamily">rounded</item>

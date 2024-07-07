@@ -1,12 +1,10 @@
 package com.kilabid.workoutapp.helper
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.SystemClock
 import android.util.Log
-import android.widget.Toast
 import androidx.camera.core.ImageProxy
 import com.google.common.annotations.VisibleForTesting
 import com.google.mediapipe.framework.image.BitmapImageBuilder
@@ -137,13 +135,11 @@ class PoseLandmarkersHelper(
                         when (it) {
                             PushUpPosition.PUSH_UP_UP -> {
                                 Log.d(TAG, "Push-up UP position detected")
-                                showToast("Push-up UP position detected")
                             }
                             PushUpPosition.PUSH_UP_DOWN -> {
                                 Log.d(TAG, "Push-up DOWN position detected")
-                                showToast("Push-up DOWN position detected")
                             }
-                            PushUpPosition.NONE -> {
+                            PushUpPosition.WRONG_POSITION -> {
                             }
                         }
                     }
@@ -154,13 +150,11 @@ class PoseLandmarkersHelper(
                         when (it) {
                             SquatPosition.SQUAT_UP -> {
                                 Log.d(TAG, "Squat UP position detected")
-                                showToast("Squat UP position detected")
                             }
                             SquatPosition.SQUAT_DOWN -> {
                                 Log.d(TAG, "Squat DOWN position detected")
-                                showToast("Squat DOWN position detected")
                             }
-                            SquatPosition.NONE -> {
+                            SquatPosition.WRONG_POSITION -> {
                             }
                         }
                     }
@@ -171,13 +165,11 @@ class PoseLandmarkersHelper(
                         when (it){
                             SitUpPosition.SIT_UP_UP -> {
                                 Log.d(TAG, "Sit-up UP position detected")
-                                showToast("Sit-up UP position detected")
                             }
                             SitUpPosition.SIT_UP_DOWN -> {
                                 Log.d(TAG, "Sit-up DOWN position detected")
-                                showToast("Sit-up DOWN position detected")
                             }
-                            SitUpPosition.NONE -> {}
+                            SitUpPosition.WRONG_POSITION -> {}
                         }
                     }
                 }
@@ -198,8 +190,8 @@ class PoseLandmarkersHelper(
 
     private fun detectPushUpPosition(landmark: MutableList<NormalizedLandmark>): PushUpPosition? {
         return when {
-            pushUpPoseDetector.detectPushUpPosition(landmark) != PushUpPosition.NONE -> {
-                pushUpPoseDetector.detectPushUpPosition(landmark)
+            pushUpPoseDetector.detectPushUpPosition(landmark, null) != PushUpPosition.WRONG_POSITION -> {
+                pushUpPoseDetector.detectPushUpPosition(landmark, null)
             }
             else -> null
         }
@@ -207,8 +199,8 @@ class PoseLandmarkersHelper(
 
     private fun detectSquatPosition(landmark: MutableList<NormalizedLandmark>): SquatPosition? {
         return when {
-            squatPoseDetector.detectSquatPosition(landmark) != SquatPosition.NONE -> {
-                squatPoseDetector.detectSquatPosition(landmark)
+            squatPoseDetector.detectSquatPosition(landmark, null) != SquatPosition.WRONG_POSITION -> {
+                squatPoseDetector.detectSquatPosition(landmark, null)
             }
             else -> null
         }
@@ -216,35 +208,29 @@ class PoseLandmarkersHelper(
 
     private fun detectSitUpPosition(landmark: MutableList<NormalizedLandmark>): SitUpPosition? {
         return when {
-            sitUpPoseDetector.detectSitUpPosition(landmark) != SitUpPosition.NONE -> {
-                sitUpPoseDetector.detectSitUpPosition(landmark)
+            sitUpPoseDetector.detectSitUpPosition(landmark, null) != SitUpPosition.WRONG_POSITION -> {
+                sitUpPoseDetector.detectSitUpPosition(landmark, null)
             }
             else -> null
-        }
-    }
-
-    private fun showToast(message: String) {
-        (context as? Activity)?.runOnUiThread {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
     enum class PushUpPosition {
         PUSH_UP_UP,
         PUSH_UP_DOWN,
-        NONE
+        WRONG_POSITION
     }
 
     enum class SquatPosition {
         SQUAT_UP,
         SQUAT_DOWN,
-        NONE
+        WRONG_POSITION
     }
 
     enum class SitUpPosition {
         SIT_UP_UP,
         SIT_UP_DOWN,
-        NONE
+        WRONG_POSITION
     }
 
     enum class ExerciseType {

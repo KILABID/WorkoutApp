@@ -1,5 +1,6 @@
 package com.kilabid.workoutapp.ui.SplashScreen
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
+@SuppressLint("CustomSplashScreen")
 class SplashScreenActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,7 +22,7 @@ class SplashScreenActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash_screen)
         //Buatkan saya kode splash screen
         lifecycleScope.launch {
-            delay(5000)
+            delay(3000)
             val userPreferences = UserPreferences.getInstance(datastore)
             val user = userPreferences.getSession().first()
             val intent = if (user.isLogin) {

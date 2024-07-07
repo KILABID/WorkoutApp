@@ -1,17 +1,22 @@
 package com.kilabid.workoutapp.helper
 
 import android.os.SystemClock
+import android.util.Log
 import com.google.mediapipe.tasks.components.containers.NormalizedLandmark
 import com.kilabid.workoutapp.util.calculateAngle
 
 class PushUpPoseDetector {
     private var counter = 0
-    private var previousPosition: PoseLandmarkersHelper.PushUpPosition = PoseLandmarkersHelper.PushUpPosition.NONE
+    private var previousPosition: PoseLandmarkersHelper.PushUpPosition = PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION
     private var lastDetectionTime: Long = 0
-    private val debounceDuration: Long = 500 // 500 ms atau 0.5 detik
+    private val debounceDuration: Long = 500
 
-    fun detectPushUpPosition(landmarks: MutableList<NormalizedLandmark>): PoseLandmarkersHelper.PushUpPosition {
+    fun detectPushUpPosition(landmarks: MutableList<NormalizedLandmark>, reps: Int?): PoseLandmarkersHelper.PushUpPosition {
         val currentTime = SystemClock.uptimeMillis()
+
+        if (reps != null && counter == 0) {
+            counter = reps
+        }
 
         val leftHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_HIP]
         val rightHip = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_HIP]
@@ -38,15 +43,19 @@ class PushUpPoseDetector {
         val currentPosition = when {
             isUp -> PoseLandmarkersHelper.PushUpPosition.PUSH_UP_UP
             isDown -> PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN
-            else -> PoseLandmarkersHelper.PushUpPosition.NONE
+            else -> PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION
         }
 
-        if (currentPosition != PoseLandmarkersHelper.PushUpPosition.NONE && currentTime - lastDetectionTime > debounceDuration) {
-            // Increment counter when transitioning from UP to DOWN
+        if (currentPosition != PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION && currentTime - lastDetectionTime > debounceDuration) {
+            // Decrement counter when transitioning from UP to DOWN
             if (previousPosition == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_UP &&
                 currentPosition == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN) {
-                counter++
+                if (counter > 0) {
+                    counter--
+                    Log.d("PushUpPoseDetector", "Counter decremented: $counter")
+                }
             }
+
             // Update the previous position
             previousPosition = currentPosition
             // Update the last detection time

@@ -16,51 +16,20 @@
     <string name="hai_user">Hai, User</string>
     <string name="ayo_bergerak">Ayo Bergerak!</string>
     <string name="login">Login</string>
-
-
-    <string name="media_pipe">MediaPipe</string>
-
-    <string name="alt_bottom_sheet_chevron">Bottom sheet expandable indicator</string>
-
-    <string name="alt_bottom_sheet_max_results_button_minus">Decreasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_max_results_button_plus">Increasing
-        maximum pose results button</string>
-    <string name="alt_bottom_sheet_threshold_button_minus">Decreasing
-        threshold of pose detect results button</string>
-    <string name="alt_bottom_sheet_threshold_button_plus">Increasing
-        threshold of pose detect results button</string>
-    <string name="menu_camera">Camera</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="tv_gallery_placeholder">Click + to add an image or a video
-        to begin running the pose landmarker.</string>
-
-    <string name="label_inference_time">Inference Time</string>
-    <string name="label_fps">Frames per Second</string>
-    <string name="label_pose_detection_confidence_threshold">Detection
-        Threshold</string>
-    <string name="label_pose_tracking_confidence_threshold">Tracking
-        Threshold</string>
-    <string name="label_pose_presence_confidence_threshold">Presence
-        Threshold</string>
-    <string name="label_num_poses">Number of Poses</string>
-    <string name="label_delegate">Delegate</string>
-    <string name="label_models">Model</string>
     <string name="push_up_count">Push-up Count: %1$s</string>
     <string name="squat_count">Squat Count: %1$s</string>
-    <string name="sit_up_detected">Sit-Up Count: %1$s</string>
+    <string name="sit_up_count">Sit-Up Count: %1$s</string>
     <string name="your_journey_nto_a_healthier_nstronger_you_nstarts_here_nlet_s_get_nmoving">Your journey \nto a healthier, \nstronger you \nstarts here. \nLet\'s get \nmoving!</string>
     <string name="hi_user">Hi, User</string>
     <string name="hi_username">Hi, %1$s</string>
+    <string name="pilih_tingkat_kemampuan">PILIH TINGKAT KEMAMPUAN</string>
+    <string name="batal">Batal</string>
+    <string name="lanjut">Lanjut</string>
+    <string name="mulai">Mulai</string>
 
-    <string-array name="delegate_spinner_titles">
-        <item>CPU</item>
-        <item>GPU</item>
-    </string-array>
-
-    <string-array name="models_spinner_titles">
-        <item>Pose Landmarker Full</item>
-        <item>Pose Landmarker Lite</item>
-        <item>Pose Landmarker Heavy</item>
+    <string-array name="menu_kemampuan">
+        <item>Pemula</item>
+        <item>Menengah</item>
+        <item>Mahir</item>
     </string-array>
 </resources>
