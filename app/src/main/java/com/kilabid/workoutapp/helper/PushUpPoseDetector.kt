@@ -29,16 +29,24 @@ class PushUpPoseDetector {
         val leftKnee = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_KNEE]
         val rightKnee = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_KNEE]
 
-        val leftHipAngle = calculateAngle(leftShoulder, leftHip, leftKnee)
-        val rightHipAngle = calculateAngle(rightShoulder, rightHip, rightKnee)
-        val leftElbowAngle = calculateAngle(leftShoulder, leftElbow, leftWrist)
-        val rightElbowAngle = calculateAngle(rightShoulder, rightElbow, rightWrist)
+        // Determine facing direction
+        val isFacingLeft = leftShoulder.x() > rightShoulder.x()
 
-        val isUp = (leftHipAngle > 170 && rightHipAngle > 170) &&
-                (leftElbowAngle > 150 && rightElbowAngle > 150)
+        // Calculate angles based on facing direction
+        val hipAngle = if (isFacingLeft) {
+            calculateAngle(rightShoulder, rightHip, rightKnee)
+        } else {
+            calculateAngle(leftShoulder, leftHip, leftKnee)
+        }
 
-        val isDown = (leftHipAngle > 170 && rightHipAngle > 170) &&
-                (leftElbowAngle < 70 && rightElbowAngle < 70)
+        val elbowAngle = if (isFacingLeft) {
+            calculateAngle(rightShoulder, rightElbow, rightWrist)
+        } else {
+            calculateAngle(leftShoulder, leftElbow, leftWrist)
+        }
+
+        val isUp = hipAngle in 170.0 .. 180.0 && elbowAngle in 150.0 .. 180.0
+        val isDown = hipAngle in 170.0 .. 180.0 && elbowAngle in 30.0 .. 70.0
 
         val currentPosition = when {
             isUp -> PoseLandmarkersHelper.PushUpPosition.PUSH_UP_UP

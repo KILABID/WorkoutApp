@@ -71,13 +71,14 @@ object PoseUtil {
     }
 
     fun detectPose(
-        poseLandmarkersHelper: PoseLandmarkersHelper,
-        imageProxy: ImageProxy,
+        poseLandmarkersHelper: PoseLandmarkersHelper?,
+        image: ImageProxy,
         isFrontCamera: Boolean
     ) {
-        poseLandmarkersHelper.detectLiveStream(
-            imageProxy = imageProxy,
-            isFrontCamera = isFrontCamera
-        )
+        if (poseLandmarkersHelper != null) {
+            poseLandmarkersHelper.detectLiveStream(image, isFrontCamera)
+        } else {
+            Log.e("PoseUtil", "PoseLandmarkersHelper is not initialized")
+        }
     }
 }

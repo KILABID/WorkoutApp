@@ -9,7 +9,7 @@ class SquatPoseDetector {
     private var counter = 0
     private var previousPosition: PoseLandmarkersHelper.SquatPosition = PoseLandmarkersHelper.SquatPosition.WRONG_POSITION
     private var lastDetectionTime: Long = 0
-    private val debounceDuration: Long = 500
+    private val debounceDuration: Long = 500 // 500 ms or 0.5 seconds
 
     fun detectSquatPosition(landmarks: MutableList<NormalizedLandmark>, reps: Int?): PoseLandmarkersHelper.SquatPosition {
         val currentTime = SystemClock.uptimeMillis()
@@ -25,15 +25,19 @@ class SquatPoseDetector {
         val leftAnkle = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_LEFT_ANKLE]
         val rightAnkle = landmarks[PoseLandmarkersHelper.POSE_LANDMARK_RIGHT_ANKLE]
 
-        val leftLegAngle = calculateAngle(leftHip, leftKnee, leftAnkle)
-        val rightLegAngle = calculateAngle(rightHip, rightKnee, rightAnkle)
+        // Determine facing direction
+        val isFacingLeft = leftHip.x() > rightHip.x()
 
-        val isUp = leftLegAngle > 160 && rightLegAngle > 160
-        val isDown = leftLegAngle < 90 && rightLegAngle < 90
+        // Calculate leg angles based on facing direction
+        val legAngle = if (isFacingLeft) {
+            calculateAngle(rightHip, rightKnee, rightAnkle)
+        } else {
+            calculateAngle(leftHip, leftKnee, leftAnkle)
+        }
 
         val currentPosition = when {
-            isUp -> PoseLandmarkersHelper.SquatPosition.SQUAT_UP
-            isDown -> PoseLandmarkersHelper.SquatPosition.SQUAT_DOWN
+            legAngle in 160.0..180.0 -> PoseLandmarkersHelper.SquatPosition.SQUAT_UP
+            legAngle < 90.0 -> PoseLandmarkersHelper.SquatPosition.SQUAT_DOWN
             else -> PoseLandmarkersHelper.SquatPosition.WRONG_POSITION
         }
 

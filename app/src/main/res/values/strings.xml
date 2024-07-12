@@ -26,10 +26,40 @@
     <string name="batal">Batal</string>
     <string name="lanjut">Lanjut</string>
     <string name="mulai">Mulai</string>
+    <string name="starting_in">Dimulai dalam...</string>
+    <string name="ambil_posisi">Ambil Posisi</string>
+    <string name="sit_up_hint">
+        Untuk melakukan situp dengan benar, ikuti langkah-langkah berikut:
+        \n1. Berbaringlah telentang dengan lutut ditekuk dan kaki rata di lantai.
+        \n2. Tempatkan tangan di belakang kepala atau silang di atas dada.
+        \n3. Angkat tubuh bagian atas menuju lutut dengan gerakan terkontrol.
+        \n4. Pastikan dagu Anda tidak menyentuh dada dan leher tetap rileks.
+        \n5. Kembali ke posisi awal dengan perlahan.
+        \nHindari menarik kepala dengan tangan dan pastikan punggung bawah tetap di lantai saat naik turun.
+    </string>
+
+    <string name="push_up_hint">
+        Untuk melakukan push-up dengan benar, ikuti langkah-langkah berikut:
+        \n1. Mulailah dengan posisi plank dengan tangan sedikit lebih lebar dari bahu.
+        \n2. Jaga tubuh Anda dalam garis lurus dari kepala hingga tumit.
+        \n3. Tekuk siku untuk menurunkan tubuh Anda sampai dada hampir menyentuh lantai.
+        \n4. Dorong tubuh kembali ke posisi awal dengan meluruskan siku.
+        \nPastikan punggung tetap lurus dan hindari menjatuhkan pinggul atau mengangkat pantat terlalu tinggi.
+    </string>
+
+    <string name="squat_hint">
+        Untuk melakukan squat dengan benar, ikuti langkah-langkah berikut:
+        \n1. Berdirilah dengan kaki selebar bahu dan jari kaki sedikit mengarah keluar.
+        \n2. Dorong pinggul ke belakang seolah-olah Anda akan duduk di kursi.
+        \n3. Tekuk lutut dan turunkan tubuh hingga paha sejajar atau sedikit di bawah lutut.
+        \n4. Jaga agar punggung tetap lurus dan dada terbuka.
+        \n5. Dorong kembali ke posisi berdiri melalui tumit.
+        \nHindari membiarkan lutut melewati jari kaki dan pastikan berat badan berada di tumit, bukan di jari kaki.
+    </string>
 
     <string-array name="menu_kemampuan">
-        <item>Pemula</item>
-        <item>Menengah</item>
-        <item>Mahir</item>
+        <item>Pemula -> 5</item>
+        <item>Menengah -> 10</item>
+        <item>Mahir -> 15</item>
     </string-array>
 </resources>

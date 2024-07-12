@@ -1,5 +1,7 @@
 package com.kilabid.workoutapp.data
 
+import kotlinx.coroutines.flow.Flow
+
 class Repository private constructor(
     private val userPreferences: UserPreferences,
 ) {
@@ -7,6 +9,13 @@ class Repository private constructor(
         userPreferences.saveSession(user)
     }
 
+    fun getSession(): Flow<UserModel> {
+        return userPreferences.getSession()
+    }
+
+    suspend fun logout() {
+        userPreferences.logout()
+    }
     companion object {
         @Volatile
         private var INSTANCE: Repository? = null

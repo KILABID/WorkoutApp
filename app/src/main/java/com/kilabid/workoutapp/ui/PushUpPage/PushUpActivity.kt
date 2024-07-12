@@ -3,6 +3,7 @@ package com.kilabid.workoutapp.ui.PushUpPage
 import android.Manifest
 import android.app.Dialog
 import android.content.pm.PackageManager
+import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -21,6 +22,7 @@ import androidx.camera.core.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.airbnb.lottie.LottieAnimationView
+import com.google.mediapipe.framework.MediaPipeException
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.kilabid.workoutapp.R
 import com.kilabid.workoutapp.databinding.ActivityPushUpBinding
@@ -36,12 +38,16 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
     private lateinit var poseDetector: PushUpPoseDetector
     private lateinit var counterTextView: TextView
     private lateinit var poseLandmarkersHelper: PoseLandmarkersHelper
-    private var cameraFacing = CameraSelector.LENS_FACING_BACK
+    private var cameraFacing = CameraSelector.LENS_FACING_FRONT
     private lateinit var backgroundExecutor: ExecutorService
     private var pushupCounter: Int = 0
     private var incorrectPositionToast: Toast? = null
     private var incorrectPositionStartTime: Long = 0
     private val incorrectPositionDuration = 5000
+    private var isCounting: Boolean = false // New variable to track if counting is started
+
+    // MediaPlayer for incorrect position notification
+    private lateinit var mediaPlayer: MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,8 +58,19 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
         poseDetector = PushUpPoseDetector()
         backgroundExecutor = Executors.newSingleThreadExecutor()
 
+        mediaPlayer = MediaPlayer.create(this, R.raw.incorrect_position)
+
         binding.topAppBar.setNavigationOnClickListener {
             finish()
+        }
+
+        initializeMediaPlayer()
+
+        binding.btnStart.setOnClickListener {
+            // Show a popup that says "Starting in 5 seconds..."
+            showStartingInPopup()
+            binding.btnStart.isEnabled = false
+
         }
 
         checkAndRequestPermissions()
@@ -88,9 +105,13 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
 
     private fun initializePoseLandmarkerHelper() {
         backgroundExecutor.execute {
-            poseLandmarkersHelper = PoseUtil.initializePoseLandmarkerHelper(
-                this, this, PoseLandmarkersHelper.ExerciseType.PUSH_UP
-            )
+            try {
+                poseLandmarkersHelper = PoseUtil.initializePoseLandmarkerHelper(
+                    this, this, PoseLandmarkersHelper.ExerciseType.PUSH_UP
+                )
+            } catch (e: MediaPipeException) {
+                Log.e("PushUpActivity", "MediaPipe initialization error: ${e.message}")
+            }
         }
     }
 
@@ -130,6 +151,17 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
         super.onDestroy()
         poseLandmarkersHelper.close()
         binding.overlay.clear()
+        releaseMediaPlayer()
+    }
+
+    private fun initializeMediaPlayer() {
+        mediaPlayer = MediaPlayer.create(this, R.raw.incorrect_position)
+    }
+
+    private fun releaseMediaPlayer() {
+        if (::mediaPlayer.isInitialized) {
+            mediaPlayer.release()
+        }
     }
 
     override fun onError(error: String, errorCode: Int) {
@@ -138,45 +170,52 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
 
     override fun onResults(resultBundle: PoseLandmarkersHelper.ResultBundle) {
         runOnUiThread {
-            binding.overlay.setResults(
-                resultBundle.results.first(),
-                resultBundle.inputImageHeight,
-                resultBundle.inputImageWidth,
-                RunningMode.LIVE_STREAM
-            )
+            // Pastikan isCounting di cek sebelum mengakses resultBundle
+            if (isCounting) {
+                binding.overlay.setResults(
+                    resultBundle.results.first(),
+                    resultBundle.inputImageHeight,
+                    resultBundle.inputImageWidth,
+                    RunningMode.LIVE_STREAM
+                )
 
-            val results = resultBundle.results.firstOrNull()
-            val landmarks = results?.landmarks()?.firstOrNull()
-            if (!landmarks.isNullOrEmpty()) {
-                val position = poseDetector.detectPushUpPosition(landmarks, pushupCounter)
-                if (position == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN) {
-                    val count = poseDetector.getCounter()
-                    counterTextView.text = getString(R.string.push_up_count, count.toString())
-                    incorrectPositionStartTime = 0 // Reset incorrect position start time
-                    if (count == 0) {
-                        successPopUp()
+                val results = resultBundle.results.firstOrNull()
+                val landmarks = results?.landmarks()?.firstOrNull()
+                if (!landmarks.isNullOrEmpty()) {
+                    val position = poseDetector.detectPushUpPosition(landmarks, pushupCounter)
+                    if (position == PoseLandmarkersHelper.PushUpPosition.PUSH_UP_DOWN) {
+                        val count = poseDetector.getCounter()
+                        counterTextView.text = getString(R.string.push_up_count, count.toString())
+                        incorrectPositionStartTime = 0 // Reset incorrect position start time
+                        if (count == 0) {
+                            successPopUp()
+                        }
+                    } else if (position == PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION) {
+                        if (incorrectPositionStartTime == 0L) {
+                            incorrectPositionStartTime = System.currentTimeMillis()
+                        } else if (System.currentTimeMillis() - incorrectPositionStartTime >= incorrectPositionDuration) {
+                            showIncorrectPositionNotification()
+                            incorrectPositionStartTime = 0 // Reset incorrect position start time after showing notification
+                        }
+                    } else {
+                        incorrectPositionStartTime = 0 // Reset incorrect position start time if in correct position
                     }
-                } else if (position == PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION) {
-                    if (incorrectPositionStartTime == 0L) {
-                        incorrectPositionStartTime = System.currentTimeMillis()
-                    } else if (System.currentTimeMillis() - incorrectPositionStartTime >= incorrectPositionDuration) {
-                        showIncorrectPositionNotification()
-                        incorrectPositionStartTime = 0 // Reset incorrect position start time after showing notification
-                    }
-                } else {
-                    incorrectPositionStartTime = 0 // Reset incorrect position start time if in correct position
                 }
+                binding.overlay.invalidate()
             }
-            binding.overlay.invalidate()
         }
     }
 
     private fun showIncorrectPositionNotification() {
-        incorrectPositionToast?.cancel() // Batalkan toast sebelumnya jika masih ditampilkan
+        incorrectPositionToast?.cancel() // Cancel the previous toast if it is still displayed
         incorrectPositionToast = Toast.makeText(this, "Posisi salah, perbaiki form Anda!", Toast.LENGTH_LONG)
         incorrectPositionToast?.show()
 
-        // Gunakan Handler untuk menjadwalkan pembatalan toast setelah 5 detik
+        // Play the audio notification
+        if (!mediaPlayer.isPlaying) {
+            mediaPlayer.start()
+        }
+        // Use Handler to schedule the cancellation of the toast after 5 seconds
         Handler(Looper.getMainLooper()).postDelayed({
             incorrectPositionToast?.cancel()
         }, 5000)
@@ -186,6 +225,7 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
         val dialog = Dialog(this)
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
         dialog.setContentView(R.layout.pop_up_select)
         dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
@@ -198,11 +238,16 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
         val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, skillLevels)
         dropdown.setAdapter(adapter)
 
+        // Set default value for dropdown
+        val defaultSkillLevel = "Pemula -> 5" // Replace with the appropriate default value from your array
+        dropdown.setText(defaultSkillLevel, false)
+        pushupCounter = 5 // Set default counter based on default skill level
+
         dropdown.setOnItemClickListener { _, _, position, _ ->
             when (position) {
-                0 -> pushupCounter = 5
-                1 -> pushupCounter = 10
-                2 -> pushupCounter = 15
+                0 -> pushupCounter = 5 // Beginner
+                1 -> pushupCounter = 10 // Intermediate
+                2 -> pushupCounter = 15 // Advanced
             }
         }
 
@@ -210,7 +255,6 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
             dialog.dismiss()
             finish()
         }
-
         btnLanjut.setOnClickListener {
             dialog.dismiss()
             counterTextView.text = getString(R.string.push_up_count, pushupCounter.toString())
@@ -218,11 +262,49 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
 
         dialog.show()
     }
+    private fun showStartingInPopup() {
+        val dialog = Dialog(this)
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        dialog.setCancelable(false)
+        dialog.setCanceledOnTouchOutside(false)
+
+        dialog.setContentView(R.layout.pop_up_starting_in)
+        dialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
+
+        val textView = dialog.findViewById<TextView>(R.id.starting_in_text)
+        val hint = dialog.findViewById<TextView>(R.id.hint_posisi)
+        hint.text = getString(R.string.push_up_hint)
+        dialog.show()
+
+        val countdownTime = 15 // Countdown time in seconds
+
+        // Handler to update the countdown text every second
+        val handler = Handler(Looper.getMainLooper())
+        var timeLeft = countdownTime
+
+        val runnable = object : Runnable {
+            override fun run() {
+                if (timeLeft > 0) {
+                    textView.text = timeLeft.toString()
+                    timeLeft--
+                    handler.postDelayed(this, 1000)
+                } else {
+                    dialog.dismiss()
+                    // Start counting squats
+                    isCounting = true
+                    counterTextView.text = getString(R.string.push_up_count, pushupCounter.toString())
+                }
+            }
+        }
+
+        handler.post(runnable)
+    }
 
     private fun successPopUp() {
         val successDialog = Dialog(this)
         successDialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         successDialog.setCancelable(false)
+        successDialog.setCanceledOnTouchOutside(false)
         successDialog.setContentView(R.layout.pop_up_success)
         successDialog.window?.setBackgroundDrawableResource(android.R.color.transparent)
 
