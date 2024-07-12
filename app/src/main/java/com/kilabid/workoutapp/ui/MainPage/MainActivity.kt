@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.kilabid.workoutapp.R
 import com.kilabid.workoutapp.data.MainMenuData
 import com.kilabid.workoutapp.databinding.ActivityMainBinding
+import com.kilabid.workoutapp.ui.AboutPage.AboutActivity
 import com.kilabid.workoutapp.ui.LoginPage.LoginPageActivity
 import com.kilabid.workoutapp.ui.LoginPage.LoginViewModel
 import com.kilabid.workoutapp.ui.PushUpPage.PushUpActivity
@@ -34,6 +35,10 @@ class MainActivity : AppCompatActivity() {
         list.addAll(getList())
         showListMenu()
 
+        binding.about.setOnClickListener{
+            val intentAbout = Intent(this, AboutActivity::class.java)
+            startActivity(intentAbout)
+        }
 //        System.loadLibrary()
         viewModel.getSession().observe(this){ user ->
             binding.tvHiUser.text = getString(R.string.hi_username, user.username)

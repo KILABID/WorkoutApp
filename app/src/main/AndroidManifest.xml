@@ -26,6 +26,12 @@
         android:theme="@style/Theme.WorkoutApp"
         tools:targetApi="31">
         <activity
+            android:name=".ui.AboutPage.AboutActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.WorkoutActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.SitUpPage.SitUpActivity"
             android:exported="false" />
         <activity
