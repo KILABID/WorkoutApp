@@ -29,9 +29,6 @@
             android:name=".ui.AboutPage.AboutActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.WorkoutActivity"
-            android:exported="false" />
-        <activity
             android:name=".ui.SitUpPage.SitUpActivity"
             android:exported="false" />
         <activity

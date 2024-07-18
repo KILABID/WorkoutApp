@@ -1,7 +1,5 @@
 package com.kilabid.workoutapp.util
 
-import android.app.Activity
-import android.content.pm.PackageManager
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.Camera
@@ -10,22 +8,12 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.kilabid.workoutapp.helper.PoseLandmarkersHelper
 import java.util.concurrent.ExecutorService
 
 object CameraUtil {
-    fun allPermissionsGranted(activity: Activity, permissions: Array<String>): Boolean {
-        return permissions.all { activity.checkSelfPermission(it) == PackageManager.PERMISSION_GRANTED }
-    }
-
-    fun requestPermissionsIfNeeded(activity: Activity, requestCode: Int, permissions: Array<String>) {
-        if (!allPermissionsGranted(activity, permissions)) {
-            ActivityCompat.requestPermissions(activity, permissions, requestCode)
-        }
-    }
 
     fun setUpCamera(
         activity: AppCompatActivity,

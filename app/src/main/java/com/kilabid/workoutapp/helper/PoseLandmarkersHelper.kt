@@ -127,7 +127,6 @@ class PoseLandmarkersHelper(
         val finishTimeMs = SystemClock.uptimeMillis()
         val inferenceTime = finishTimeMs - result.timestampMs()
         result.landmarks().forEachIndexed { _, poseLandmarks ->
-            // Deteksi pose latihan berdasarkan jenis latihan yang diaktifkan
             when (exerciseType) {
                 ExerciseType.PUSH_UP -> {
                     val pushUpPosition = detectPushUpPosition(poseLandmarks)
@@ -174,7 +173,6 @@ class PoseLandmarkersHelper(
                     }
                 }
                 ExerciseType.NONE -> {
-                    // Tidak melakukan deteksi apapun
                 }
             }
         }

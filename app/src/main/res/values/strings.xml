@@ -58,7 +58,7 @@
     </string>
     <string name="tentang">Tentang</string>
     <string name="profile_pembuat">Profile Pembuat</string>
-    <string name="aldi_murad_rifdiansyah">Aldi Murad Rifdiansyah</string>
+    <string name="aldi_murad_rifdiansyah">Nama: Aldi Murad Rifdiansyah\nNPM: 50421101\nKelas: 3IA02</string>
 
     <string-array name="menu_kemampuan">
         <item>Pemula -> 5</item>

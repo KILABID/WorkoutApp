@@ -160,7 +160,6 @@ class OverlayView(context: Context?, attrs: AttributeSet?) : View(context, attrs
     }
 
     // Function to calculate the angle between two vectors
-    // Fungsi untuk menghitung sudut antara tiga titik
     private fun calculateAngle(
         startPoint: FloatArray,
         midPoint: FloatArray,

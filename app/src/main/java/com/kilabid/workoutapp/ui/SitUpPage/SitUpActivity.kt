@@ -43,11 +43,13 @@ class SitUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerListe
     private var situpCounter: Int = 0
     private var incorrectPositionToast: Toast? = null
     private var incorrectPositionStartTime: Long = 0
-    private val incorrectPositionDuration = 5000 // 5 seconds
+    private val incorrectPositionDuration = 3000 // 5 seconds
     private var isCounting: Boolean = false // New variable to track if counting is started
 
     // MediaPlayer for incorrect position notification
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var successPlayer : MediaPlayer
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -152,11 +154,15 @@ class SitUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerListe
 
     private fun initializeMediaPlayer() {
         mediaPlayer = MediaPlayer.create(this, R.raw.incorrect_position)
+        successPlayer = MediaPlayer.create(this, R.raw.success_notif)
+        successPlayer.setVolume(160f,160f)
+
     }
 
     private fun releaseMediaPlayer() {
         if (::mediaPlayer.isInitialized) {
             mediaPlayer.release()
+            successPlayer.release()
         }
     }
 
@@ -166,7 +172,6 @@ class SitUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerListe
 
     override fun onResults(resultBundle: PoseLandmarkersHelper.ResultBundle) {
         runOnUiThread {
-            // Pastikan isCounting di cek sebelum mengakses resultBundle
             if (isCounting) {
                 binding.overlay.setResults(
                     resultBundle.results.first(),
@@ -185,6 +190,8 @@ class SitUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerListe
                         incorrectPositionStartTime = 0 // Reset incorrect position start time
                         if (count == 0) {
                             successPopUp()
+                            successPlayer.start()
+                            isCounting = false
                         }
                     } else if (position == PoseLandmarkersHelper.SitUpPosition.WRONG_POSITION) {
                         if (incorrectPositionStartTime == 0L) {

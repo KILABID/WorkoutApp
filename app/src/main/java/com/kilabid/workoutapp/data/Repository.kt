@@ -20,10 +20,6 @@ class Repository private constructor(
         @Volatile
         private var INSTANCE: Repository? = null
 
-        fun clearInstance() {
-            INSTANCE = null
-        }
-
         fun getInstance(
             userPreferences: UserPreferences,
         ): Repository =

@@ -43,11 +43,12 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
     private var pushupCounter: Int = 0
     private var incorrectPositionToast: Toast? = null
     private var incorrectPositionStartTime: Long = 0
-    private val incorrectPositionDuration = 5000
+    private val incorrectPositionDuration = 3000
     private var isCounting: Boolean = false // New variable to track if counting is started
 
     // MediaPlayer for incorrect position notification
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var successPlayer : MediaPlayer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,8 +58,6 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
         counterTextView = binding.tvPushUpDetect
         poseDetector = PushUpPoseDetector()
         backgroundExecutor = Executors.newSingleThreadExecutor()
-
-        mediaPlayer = MediaPlayer.create(this, R.raw.incorrect_position)
 
         binding.topAppBar.setNavigationOnClickListener {
             finish()
@@ -155,12 +154,15 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
     }
 
     private fun initializeMediaPlayer() {
+        successPlayer = MediaPlayer.create(this, R.raw.success_notif)
         mediaPlayer = MediaPlayer.create(this, R.raw.incorrect_position)
+        successPlayer.setVolume(160f,160f)
     }
 
     private fun releaseMediaPlayer() {
         if (::mediaPlayer.isInitialized) {
             mediaPlayer.release()
+            successPlayer.release()
         }
     }
 
@@ -170,7 +172,6 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
 
     override fun onResults(resultBundle: PoseLandmarkersHelper.ResultBundle) {
         runOnUiThread {
-            // Pastikan isCounting di cek sebelum mengakses resultBundle
             if (isCounting) {
                 binding.overlay.setResults(
                     resultBundle.results.first(),
@@ -189,6 +190,8 @@ class PushUpActivity : AppCompatActivity(), PoseLandmarkersHelper.LandmarkerList
                         incorrectPositionStartTime = 0 // Reset incorrect position start time
                         if (count == 0) {
                             successPopUp()
+                            successPlayer.start()
+                            isCounting = false
                         }
                     } else if (position == PoseLandmarkersHelper.PushUpPosition.WRONG_POSITION) {
                         if (incorrectPositionStartTime == 0L) {

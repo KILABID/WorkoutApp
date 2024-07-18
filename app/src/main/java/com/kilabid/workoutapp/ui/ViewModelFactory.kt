@@ -22,10 +22,6 @@ class ViewModelFactory(private val repository: Repository) : ViewModelProvider.N
         @Volatile
         private var INSTANCE: ViewModelFactory? = null
 
-        fun clearInstance() {
-            Repository.clearInstance()
-            INSTANCE = null
-        }
         @JvmStatic
         fun getInstance(context: Context): ViewModelFactory {
             if (INSTANCE == null) {

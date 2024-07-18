@@ -20,7 +20,6 @@ class SplashScreenActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_splash_screen)
-        //Buatkan saya kode splash screen
         lifecycleScope.launch {
             delay(3000)
             val userPreferences = UserPreferences.getInstance(datastore)

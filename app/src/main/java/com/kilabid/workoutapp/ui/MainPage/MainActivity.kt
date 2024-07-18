@@ -39,7 +39,6 @@ class MainActivity : AppCompatActivity() {
             val intentAbout = Intent(this, AboutActivity::class.java)
             startActivity(intentAbout)
         }
-//        System.loadLibrary()
         viewModel.getSession().observe(this){ user ->
             binding.tvHiUser.text = getString(R.string.hi_username, user.username)
         }
