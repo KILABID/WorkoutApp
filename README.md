@@ -15,7 +15,7 @@ WorkoutApp is a fitness application that uses pose estimation to detect whether 
 
 1. **Clone Repository**:
    ```sh
-   git clone [<repository_url>](https://github.com/KILABID/WorkoutApp.git)
+   git clone https://github.com/KILABID/WorkoutApp.git
    ```
 2. **Open in Android Studio**
 3. **Sync Gradle**
@@ -73,7 +73,7 @@ WorkoutApp adalah aplikasi olahraga yang menggunakan fitur pose estimation untuk
 
 1. **Clone Repository**:
    ```sh
-   git clone [<repository_url>](https://github.com/KILABID/WorkoutApp.git)
+   git clone https://github.com/KILABID/WorkoutApp.git
    ```
 2. **Buka di Android Studio**
 3. **Sinkronisasi Gradle**
